@@ -50,8 +50,13 @@ Sistema de tienda en línea desarrollado en **Java** aplicando patrones de dise�
 - **`src/main/java/com/bazardigital/ui/gui/`**: Contiene la interfaz gráfica sencilla (por ejemplo con Swing) sobre el mismo núcleo de negocio, mostrando con claridad extras, descuentos y totales.
 - **`src/test/java/com/bazardigital/`**: Reúne las pruebas unitarias (JUnit 5) para validar las clases donde se aplica cada patrón de diseño.
 
+## Carrito, descuentos y pago
+- `ServicioCarrito` valida productos y cantidades contra el catálogo; los extras se aplican envolviendo el producto con `GarantiaExtendida`, `EmpaqueRegalo` o `EnvioExpress`. Cada extra recibe su costo al construirse.
+- Las estrategias `DescuentoPorCantidad`, `DescuentoTemporada`, `DescuentoClienteFrecuente` y `DescuentoCupon` reciben porcentajes configurables. Los descuentos acumulables se suman sobre el subtotal original; si hay descuentos no acumulables, se compara el mejor individual con el total acumulable. El descuento final nunca supera el subtotal.
+- `ServicioCheckout` procesa tarjeta, transferencia o contra entrega, registra el pedido en memoria y genera una `Factura`. Un pago inválido no guarda el pedido ni vacía el carrito. El checkout no modifica el inventario.
+
 ## Compilación y ejecución
-1. Asegúrarse de tener **Java (JDK 17+)** y **Apache Maven** instalados.
+1. Asegúrarse de tener **Java (JDK 25 o posterior)** y **Apache Maven** instalados.
 2. Para ejecutar las pruebas unitarias:
    ```bash
    mvn test

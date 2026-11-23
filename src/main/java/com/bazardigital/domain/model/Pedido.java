@@ -10,12 +10,22 @@ public class Pedido {
     private final Cliente cliente;
     private final List<Producto> productos;
     private final ModalidadEntrega modalidadEntrega;
+    private final double descuento;
 
     public Pedido(String id, Cliente cliente, List<Producto> productos,
                   ModalidadEntrega modalidadEntrega) {
+        this(id, cliente, productos, modalidadEntrega, 0);
+    }
+
+    public Pedido(String id, Cliente cliente, List<Producto> productos,
+                  ModalidadEntrega modalidadEntrega, double descuento) {
         this.id = Objects.requireNonNull(id);
         this.cliente = Objects.requireNonNull(cliente);
         this.modalidadEntrega = Objects.requireNonNull(modalidadEntrega);
+        if (!Double.isFinite(descuento) || descuento < 0) {
+            throw new IllegalArgumentException("El descuento debe ser finito y no negativo");
+        }
+        this.descuento = descuento;
         this.productos = new ArrayList<>(productos == null ? Collections.emptyList() : productos);
     }
 
@@ -40,6 +50,11 @@ public class Pedido {
     }
 
     public double calcularTotal() {
-        return calcularSubtotal() + modalidadEntrega.getCostoAdicional();
+        return calcularSubtotal() - Math.min(descuento, calcularSubtotal())
+                + modalidadEntrega.getCostoAdicional();
+    }
+
+    public double getDescuento() {
+        return Math.min(descuento, calcularSubtotal());
     }
 }
