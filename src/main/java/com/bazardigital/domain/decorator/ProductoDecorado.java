@@ -3,6 +3,7 @@ package com.bazardigital.domain.decorator;
 import java.util.Objects;
 
 import com.bazardigital.domain.model.Producto;
+import com.bazardigital.domain.observer.ObservadorStock;
 
 public abstract class ProductoDecorado extends Producto {
     private final Producto producto;
@@ -46,7 +47,27 @@ public abstract class ProductoDecorado extends Producto {
     }
 
     @Override
+    public void agregarObservadorStock(ObservadorStock observador) {
+        producto.agregarObservadorStock(observador);
+    }
+
+    @Override
+    public void quitarObservadorStock(ObservadorStock observador) {
+        producto.quitarObservadorStock(observador);
+    }
+
+    @Override
     public void actualizarStock(int nuevoStock) {
         producto.actualizarStock(nuevoStock);
+    }
+
+    @Override
+    public void aumentarStock(int cantidad) {
+        producto.aumentarStock(cantidad);
+    }
+
+    @Override
+    public void disminuirStock(int cantidad) {
+        producto.disminuirStock(cantidad);
     }
 }

@@ -1,5 +1,7 @@
 package com.bazardigital.domain.factory;
 
+import java.util.Objects;
+
 import com.bazardigital.domain.model.Categoria;
 import com.bazardigital.domain.model.Producto;
 import com.bazardigital.domain.model.ProductoFisico;
@@ -14,6 +16,7 @@ public class FabricaProductoFisico extends FabricaProducto {
     }
 
     public FabricaProductoFisico(Categoria categoria, String talla, String marca) {
+        Objects.requireNonNull(categoria, "La categoria es obligatoria");
         if (categoria == Categoria.DIGITAL || categoria == Categoria.COMBOS) {
             throw new IllegalArgumentException("Categoria incompatible con un producto fisico");
         }

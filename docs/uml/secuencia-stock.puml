@@ -1,0 +1,28 @@
+@startuml
+autonumber
+skinparam shadowing false
+
+actor Usuario
+participant ServicioInventario
+participant ProductoRepository
+participant Producto
+participant ObservadorStock
+
+Usuario -> ServicioInventario : aumentarStock(id, cantidad)
+ServicioInventario -> ProductoRepository : findById(id)
+ProductoRepository --> ServicioInventario : producto
+ServicioInventario -> Producto : getStock()
+Producto --> ServicioInventario : stock anterior
+ServicioInventario -> Producto : actualizarStock(stock anterior + cantidad)
+Producto -> Producto : validar nuevo stock
+Producto -> ObservadorStock : alCambiarStock(producto, anterior, nuevo)
+ObservadorStock --> Usuario : mostrar/notificar cambio
+Producto --> ServicioInventario : actualización completada
+ServicioInventario --> Usuario : operación completada
+
+note over ServicioInventario,Producto
+La misma notificación se produce al actualizar o disminuir existencias.
+No se emite evento si el stock permanece igual; un valor negativo
+o una disminución superior a las existencias se rechazan.
+end note
+@enduml

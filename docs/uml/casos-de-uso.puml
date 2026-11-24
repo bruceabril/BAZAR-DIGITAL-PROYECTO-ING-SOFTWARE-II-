@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor Usuario
+
+rectangle "Bazar Digital" as Sistema {
+  usecase "Consultar catalogo" as Catalogo
+  usecase "Agregar producto\nal carrito" as Agregar
+  usecase "Consultar carrito" as Carrito
+  usecase "Finalizar compra" as Checkout
+  usecase "Elegir entrega y pago" as Pago
+  usecase "Consultar y ajustar\ninventario" as Inventario
+  usecase "Recibir aviso de cambio\nde stock" as AvisoStock
+  usecase "Recibir aviso de estado\ndel pedido" as AvisoPedido
+  usecase "Usar consola o GUI Swing" as Interfaz
+}
+
+Usuario --> Catalogo
+Usuario --> Agregar
+Usuario --> Carrito
+Usuario --> Checkout
+Usuario --> Inventario
+Usuario --> Interfaz
+Checkout .> Pago : <<include>>
+Inventario ..> AvisoStock : <<dispara>>
+Checkout ..> AvisoPedido : <<dispara>>
+
+note bottom of Sistema
+El stock se valida al agregar al carrito. El checkout
+no reserva ni descuenta existencias; los pagos son simulados.
+end note
+@enduml

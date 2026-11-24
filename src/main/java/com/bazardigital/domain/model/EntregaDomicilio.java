@@ -8,6 +8,9 @@ public class EntregaDomicilio implements ModalidadEntrega {
     }
 
     public EntregaDomicilio(double costoAdicional) {
+        if (!Double.isFinite(costoAdicional) || costoAdicional < 0) {
+            throw new IllegalArgumentException("El costo de entrega debe ser finito y no negativo");
+        }
         this.costoAdicional = costoAdicional;
     }
 

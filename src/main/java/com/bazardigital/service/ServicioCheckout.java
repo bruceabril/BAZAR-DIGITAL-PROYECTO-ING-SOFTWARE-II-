@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bazardigital.domain.model.Carrito;
 import com.bazardigital.domain.model.Cliente;
+import com.bazardigital.domain.model.EstadoPedido;
 import com.bazardigital.domain.model.Factura;
 import com.bazardigital.domain.model.LineaCarrito;
 import com.bazardigital.domain.model.ModalidadEntrega;
@@ -22,11 +24,13 @@ import com.bazardigital.domain.strategy.descuento.ResultadoDescuento;
 import com.bazardigital.domain.strategy.pago.DatosPago;
 import com.bazardigital.domain.strategy.pago.EstrategiaPago;
 import com.bazardigital.domain.strategy.pago.ResultadoPago;
+import com.bazardigital.domain.observer.ObservadorPedido;
 import com.bazardigital.repository.PedidoRepository;
 
 public class ServicioCheckout {
     private final PedidoRepository pedidoRepository;
     private final Map<String, Factura> facturasPorPedido = new HashMap<>();
+    private final CopyOnWriteArrayList<ObservadorPedido> observadoresPedido = new CopyOnWriteArrayList<>();
 
     public ServicioCheckout(PedidoRepository pedidoRepository) {
         this.pedidoRepository = Objects.requireNonNull(pedidoRepository);
@@ -56,13 +60,25 @@ public class ServicioCheckout {
         String pedidoId = UUID.randomUUID().toString();
         Pedido pedido = new Pedido(pedidoId, cliente, productosPedido, modalidadEntrega,
                 resultadoDescuento.getMonto());
+        observadoresPedido.forEach(pedido::agregarObservador);
         ResultadoPago resultadoPago = estrategiaPago.procesar(pedido.calcularTotal(), datosPago);
+        pedido.cambiarEstado(EstadoPedido.CONFIRMADO);
         pedidoRepository.save(pedido);
 
         Factura factura = new Factura(UUID.randomUUID().toString(), pedido, Instant.now(), resultadoPago);
         facturasPorPedido.put(pedidoId, factura);
         carrito.vaciar();
         return factura;
+    }
+
+    public void agregarObservadorPedido(ObservadorPedido observador) {
+        observadoresPedido.addIfAbsent(Objects.requireNonNull(observador,
+                "El observador del pedido es obligatorio"));
+    }
+
+    public void quitarObservadorPedido(ObservadorPedido observador) {
+        observadoresPedido.remove(Objects.requireNonNull(observador,
+                "El observador del pedido es obligatorio"));
     }
 
     public Optional<Factura> buscarFacturaPorPedido(String pedidoId) {

@@ -1,0 +1,53 @@
+@startuml
+autonumber
+skinparam shadowing false
+
+actor Usuario
+participant ServicioCheckout
+participant Carrito
+participant CalculadoraDescuentos
+participant EstrategiaPago
+participant Pedido
+participant ObservadorPedido
+participant PedidoRepository
+participant Factura
+
+Usuario -> ServicioCheckout : cerrarPedido(cliente, carrito,\nmodalidad, descuentos, pago, datosPago)
+ServicioCheckout -> Carrito : estaVacio()
+Carrito --> ServicioCheckout : false
+ServicioCheckout -> Carrito : calcularSubtotal() / getCantidadTotal()
+Carrito --> ServicioCheckout : subtotal / cantidad
+ServicioCheckout -> CalculadoraDescuentos : calcular(subtotal, cantidad, descuentos)
+CalculadoraDescuentos --> ServicioCheckout : ResultadoDescuento
+ServicioCheckout -> Carrito : getLineas()
+Carrito --> ServicioCheckout : líneas y cantidades
+ServicioCheckout -> Pedido : crear pedido (estado CREADO)
+ServicioCheckout -> Pedido : agregarObservador(ObservadorPedido)
+ServicioCheckout -> Pedido : calcularTotal()
+Pedido --> ServicioCheckout : total
+ServicioCheckout -> EstrategiaPago : procesar(total, datosPago)
+
+alt pago procesado correctamente
+  EstrategiaPago --> ServicioCheckout : ResultadoPago
+  ServicioCheckout -> Pedido : cambiarEstado(CONFIRMADO)
+  Pedido -> ObservadorPedido : alCambiarEstado(CREADO, CONFIRMADO)
+  ObservadorPedido --> Pedido : notificación procesada
+  ServicioCheckout -> PedidoRepository : save(pedido)
+  ServicioCheckout -> Factura : crear(pedido, fecha, ResultadoPago)
+  ServicioCheckout -> ServicioCheckout : guardar factura por id de pedido
+  ServicioCheckout -> Carrito : vaciar()
+  ServicioCheckout --> Usuario : Factura
+else falla la validación/procesamiento del pago
+  EstrategiaPago --> ServicioCheckout : error
+  ServicioCheckout --> Usuario : propaga error
+  note right of ServicioCheckout
+    No se confirma ni guarda el pedido,
+    no se crea factura y el carrito
+    permanece sin vaciar.
+  end note
+end
+
+note over ServicioCheckout,PedidoRepository
+El checkout no reserva ni descuenta existencias.
+end note
+@enduml
