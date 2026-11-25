@@ -1,0 +1,169 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+hide empty members
+
+package "domain.model" {
+    abstract class Producto {
+        - id: String
+        - nombre: String
+        - descripcion: String
+        - precio: double
+        - stock: int
+        + getPrecio(): double
+        + getStock(): int
+        + agregarObservadorStock()
+        + quitarObservadorStock()
+        + actualizarStock()
+        + aumentarStock()
+        + disminuirStock()
+    }
+
+    class ProductoFisico
+    class ProductoDigital
+    class ComboBazar
+    class Categoria
+    class Cliente
+    class Carrito
+    class LineaCarrito
+    class Pedido
+    class Factura
+    enum EstadoPedido
+    interface ModalidadEntrega
+    class EntregaDomicilio
+    class EntregaRetiro
+    class EntregaDigital
+}
+
+package "domain.factory" {
+    abstract class FabricaProducto
+    class FabricaProductoFisico
+    class FabricaProductoDigital
+    class FabricaComboBazar
+    abstract class CreadorPedido
+    class CreadorPedidoDigital
+    class CreadorPedidoDomicilio
+    class CreadorPedidoRetiro
+}
+
+package "domain.decorator" {
+    abstract class ProductoDecorado
+    class GarantiaExtendida
+    class EmpaqueRegalo
+    class EnvioExpress
+}
+
+package "domain.strategy.descuento" {
+    interface EstrategiaDescuento
+    class CalculadoraDescuentos
+    class DescuentoPorCantidad
+    class DescuentoTemporada
+    class DescuentoClienteFrecuente
+    class DescuentoCupon
+    class ResultadoDescuento
+}
+
+package "domain.strategy.pago" {
+    interface EstrategiaPago
+    class PagoTarjeta
+    class PagoTransferencia
+    class PagoContraEntrega
+    interface DatosPago
+    class AutorizacionTarjeta
+    class ReferenciaTransferencia
+    class ResultadoPago
+}
+
+package "domain.observer" {
+    interface ObservadorStock
+    interface ObservadorPedido
+}
+
+package "repository" {
+    interface ProductoRepository
+    class InMemoryProductoRepository
+    interface PedidoRepository
+    class InMemoryPedidoRepository
+}
+
+package "service" {
+    class ServicioCarrito
+    class ServicioInventario
+    class ServicioCheckout
+}
+
+package "ui" {
+    class BazarDigitalApp
+    class AplicacionConsola
+    class AplicacionGrafica
+}
+
+Producto <|-- ProductoFisico
+Producto <|-- ProductoDigital
+Producto <|-- ComboBazar
+Producto <|-- ProductoDecorado
+ProductoDecorado o--> Producto : envuelve
+ProductoDecorado <|-- GarantiaExtendida
+ProductoDecorado <|-- EmpaqueRegalo
+ProductoDecorado <|-- EnvioExpress
+
+FabricaProducto <|-- FabricaProductoFisico
+FabricaProducto <|-- FabricaProductoDigital
+FabricaProducto <|-- FabricaComboBazar
+FabricaProducto ..> Producto : crea
+
+CreadorPedido <|-- CreadorPedidoDigital
+CreadorPedido <|-- CreadorPedidoDomicilio
+CreadorPedido <|-- CreadorPedidoRetiro
+CreadorPedido ..> Pedido : crea
+CreadorPedido ..> ModalidadEntrega : crea
+
+EstrategiaDescuento <|.. DescuentoPorCantidad
+EstrategiaDescuento <|.. DescuentoTemporada
+EstrategiaDescuento <|.. DescuentoClienteFrecuente
+EstrategiaDescuento <|.. DescuentoCupon
+CalculadoraDescuentos o--> EstrategiaDescuento
+CalculadoraDescuentos ..> ResultadoDescuento
+
+EstrategiaPago <|.. PagoTarjeta
+EstrategiaPago <|.. PagoTransferencia
+EstrategiaPago <|.. PagoContraEntrega
+DatosPago <|.. AutorizacionTarjeta
+DatosPago <|.. ReferenciaTransferencia
+EstrategiaPago ..> ResultadoPago
+EstrategiaPago ..> DatosPago
+
+Carrito *--> "0..*" LineaCarrito
+LineaCarrito --> Producto
+ComboBazar o--> "0..*" Producto
+Pedido --> Cliente
+Pedido o--> "1..*" Producto
+Pedido --> ModalidadEntrega
+Pedido --> EstadoPedido
+Pedido --> ObservadorPedido : notifica
+Producto --> ObservadorStock : notifica
+Factura --> Pedido
+ModalidadEntrega <|.. EntregaDomicilio
+ModalidadEntrega <|.. EntregaRetiro
+ModalidadEntrega <|.. EntregaDigital
+
+ProductoRepository <|.. InMemoryProductoRepository
+PedidoRepository <|.. InMemoryPedidoRepository
+ServicioCarrito --> ProductoRepository
+ServicioInventario --> ProductoRepository
+ServicioInventario ..> ObservadorStock
+ServicioCheckout --> PedidoRepository
+ServicioCheckout --> EstrategiaPago
+ServicioCheckout --> EstrategiaDescuento
+ServicioCheckout --> CalculadoraDescuentos
+ServicioCheckout --> ObservadorPedido
+
+AplicacionConsola --> ServicioCarrito
+AplicacionConsola --> ServicioInventario
+AplicacionConsola --> ServicioCheckout
+AplicacionGrafica --> ServicioCarrito
+AplicacionGrafica --> ServicioInventario
+AplicacionGrafica --> ServicioCheckout
+BazarDigitalApp ..> AplicacionConsola
+BazarDigitalApp ..> AplicacionGrafica
+@enduml
