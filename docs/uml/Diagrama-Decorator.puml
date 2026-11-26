@@ -1,0 +1,38 @@
+@startuml
+title Patron Decorator
+skinparam shadowing false
+hide empty members
+
+abstract class "Producto\n<<Component>>" as Producto {
+    + getNombre(): String
+    + getDescripcion(): String
+    + getPrecio(): double
+    + getStock(): int
+}
+
+class "ProductoFisico\n<<Concrete Component>>" as ProductoFisico
+class "ProductoDigital\n<<Concrete Component>>" as ProductoDigital
+class "ComboBazar\n<<Concrete Component>>" as ComboBazar
+
+abstract class "ProductoDecorado\n<<Decorator>>" as ProductoDecorado {
+    + getDescripcion(): String
+    + getPrecio(): double
+    + actualizarStock(): void
+}
+
+class "GarantiaExtendida\n<<Concrete Decorator>>" as GarantiaExtendida
+class "EmpaqueRegalo\n<<Concrete Decorator>>" as EmpaqueRegalo
+class "EnvioExpress\n<<Concrete Decorator>>" as EnvioExpress
+class "ServicioCarrito\n<<Client>>" as ServicioCarrito
+
+Producto <|-- ProductoFisico
+Producto <|-- ProductoDigital
+Producto <|-- ComboBazar
+Producto <|-- ProductoDecorado
+
+ProductoDecorado o--> Producto : producto envuelto
+ProductoDecorado <|-- GarantiaExtendida
+ProductoDecorado <|-- EmpaqueRegalo
+ProductoDecorado <|-- EnvioExpress
+ServicioCarrito ..> Producto : recibe o decora
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+title Patron Factory Method
+skinparam shadowing false
+hide empty members
+
+abstract class "FabricaProducto\n<<Creator>>" as FabricaProducto {
+    + crearProducto(): Producto
+}
+
+class "FabricaProductoFisico\n<<Concrete Creator>>" as FabricaProductoFisico {
+    + crearProducto(): Producto
+}
+
+class "FabricaProductoDigital\n<<Concrete Creator>>" as FabricaProductoDigital {
+    + crearProducto(): Producto
+}
+
+class "FabricaComboBazar\n<<Concrete Creator>>" as FabricaComboBazar {
+    + crearProducto(): Producto
+}
+
+abstract class "Producto\n<<Product>>" as Producto
+class "ProductoFisico\n<<Concrete Product>>" as ProductoFisico
+class "ProductoDigital\n<<Concrete Product>>" as ProductoDigital
+class "ComboBazar\n<<Concrete Product>>" as ComboBazar
+
+FabricaProducto <|-- FabricaProductoFisico
+FabricaProducto <|-- FabricaProductoDigital
+FabricaProducto <|-- FabricaComboBazar
+FabricaProducto ..> Producto : factory method
+
+Producto <|-- ProductoFisico
+Producto <|-- ProductoDigital
+Producto <|-- ComboBazar
+
+FabricaProductoFisico ..> ProductoFisico : crea
+FabricaProductoDigital ..> ProductoDigital : crea
+FabricaComboBazar ..> ComboBazar : crea
+
+abstract class "CreadorPedido\n<<Creator>>" as CreadorPedido {
+    + crearPedido(): Pedido
+    # crearModalidad(): ModalidadEntrega
+}
+
+class "CreadorPedidoDigital\n<<Concrete Creator>>" as CreadorPedidoDigital
+class "CreadorPedidoDomicilio\n<<Concrete Creator>>" as CreadorPedidoDomicilio
+class "CreadorPedidoRetiro\n<<Concrete Creator>>" as CreadorPedidoRetiro
+
+class "Pedido\n<<Product>>" as Pedido
+interface "ModalidadEntrega\n<<Product>>" as ModalidadEntrega
+class EntregaDigital
+class EntregaDomicilio
+class EntregaRetiro
+
+CreadorPedido <|-- CreadorPedidoDigital
+CreadorPedido <|-- CreadorPedidoDomicilio
+CreadorPedido <|-- CreadorPedidoRetiro
+CreadorPedido ..> Pedido : crea
+CreadorPedido ..> ModalidadEntrega : solicita
+
+ModalidadEntrega <|.. EntregaDigital
+ModalidadEntrega <|.. EntregaDomicilio
+ModalidadEntrega <|.. EntregaRetiro
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+title Patron Strategy
+skinparam shadowing false
+hide empty members
+
+package "Estrategias de descuento" {
+    interface "EstrategiaDescuento\n<<Strategy>>" as EstrategiaDescuento {
+        + getNombre(): String
+        + esAcumulable(): boolean
+        + calcularDescuento(): double
+    }
+
+    class "CalculadoraDescuentos\n<<Context>>" as CalculadoraDescuentos {
+        + calcular(): ResultadoDescuento
+    }
+
+    class "DescuentoPorCantidad\n<<Concrete Strategy>>" as DescuentoPorCantidad
+    class "DescuentoTemporada\n<<Concrete Strategy>>" as DescuentoTemporada
+    class "DescuentoClienteFrecuente\n<<Concrete Strategy>>" as DescuentoClienteFrecuente
+    class "DescuentoCupon\n<<Concrete Strategy>>" as DescuentoCupon
+    class ResultadoDescuento
+}
+
+package "Estrategias de pago" {
+    interface "EstrategiaPago\n<<Strategy>>" as EstrategiaPago {
+        + getNombre(): String
+        + procesar(): ResultadoPago
+    }
+
+    class "PagoTarjeta\n<<Concrete Strategy>>" as PagoTarjeta
+    class "PagoTransferencia\n<<Concrete Strategy>>" as PagoTransferencia
+    class "PagoContraEntrega\n<<Concrete Strategy>>" as PagoContraEntrega
+    class "ServicioCheckout\n<<Context>>" as ServicioCheckout
+    class ResultadoPago
+}
+
+EstrategiaDescuento <|.. DescuentoPorCantidad
+EstrategiaDescuento <|.. DescuentoTemporada
+EstrategiaDescuento <|.. DescuentoClienteFrecuente
+EstrategiaDescuento <|.. DescuentoCupon
+CalculadoraDescuentos o--> EstrategiaDescuento : usa
+CalculadoraDescuentos ..> ResultadoDescuento : devuelve
+
+EstrategiaPago <|.. PagoTarjeta
+EstrategiaPago <|.. PagoTransferencia
+EstrategiaPago <|.. PagoContraEntrega
+ServicioCheckout o--> EstrategiaPago : usa
+ServicioCheckout --> EstrategiaDescuento : recibe
+ServicioCheckout ..> ResultadoPago : obtiene
+@enduml

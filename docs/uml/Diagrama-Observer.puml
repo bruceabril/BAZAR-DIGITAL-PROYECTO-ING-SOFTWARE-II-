@@ -1,0 +1,54 @@
+@startuml
+title Patron Observer
+skinparam shadowing false
+hide empty members
+
+interface "ObservadorStock\n<<Observer>>" as ObservadorStock {
+    + alCambiarStock(): void
+}
+
+interface "ObservadorPedido\n<<Observer>>" as ObservadorPedido {
+    + alCambiarEstado(): void
+}
+
+abstract class "Producto\n<<Subject>>" as Producto {
+    - observadoresStock
+    + agregarObservadorStock()
+    + quitarObservadorStock()
+    + actualizarStock()
+    + aumentarStock()
+    + disminuirStock()
+}
+
+class "Pedido\n<<Subject>>" as Pedido {
+    - observadores
+    - estado: EstadoPedido
+    + agregarObservador()
+    + quitarObservador()
+    + cambiarEstado()
+}
+
+enum EstadoPedido {
+    CREADO
+    CONFIRMADO
+    CANCELADO
+}
+
+class "ServicioInventario\n<<Client>>" as ServicioInventario
+class "ServicioCheckout\n<<Client>>" as ServicioCheckout
+class "InterfazConsola\n<<Concrete Observer>>" as InterfazConsola
+class "InterfazGrafica\n<<Concrete Observer>>" as InterfazGrafica
+class "AplicacionConsola\n<<Concrete Observer>>" as AplicacionConsola
+class "AplicacionGrafica\n<<Concrete Observer>>" as AplicacionGrafica
+
+Producto --> ObservadorStock : notifica
+Pedido --> ObservadorPedido : notifica
+Pedido --> EstadoPedido
+ServicioInventario ..> Producto : modifica stock
+ServicioCheckout ..> Pedido : cambia estado
+
+ObservadorStock <|.. InterfazConsola
+ObservadorStock <|.. InterfazGrafica
+ObservadorPedido <|.. AplicacionConsola
+ObservadorPedido <|.. AplicacionGrafica
+@enduml

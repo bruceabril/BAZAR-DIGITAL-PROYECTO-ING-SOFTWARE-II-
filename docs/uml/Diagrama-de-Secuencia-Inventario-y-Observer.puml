@@ -1,0 +1,23 @@
+@startuml
+autonumber
+skinparam shadowing false
+
+actor Usuario
+participant "ServicioInventario" as Inventario
+participant "ProductoRepository" as Repositorio
+participant "Producto" as Producto
+participant "ObservadorStock" as Observador
+
+Usuario -> Inventario : aumentarStock(id, cantidad)
+Inventario -> Repositorio : findById(id)
+Repositorio --> Inventario : Producto
+
+Inventario -> Producto : aumentarStock(cantidad)
+Producto -> Producto : validar cantidad
+Producto -> Producto : stockAnterior = stock
+Producto -> Producto : actualizar stock
+Producto -> Observador : alCambiarStock(producto, anterior, nuevo)
+Observador --> Usuario : notificacion recibida
+Producto --> Inventario : stock actualizado
+Inventario --> Usuario : operacion completada
+@enduml
